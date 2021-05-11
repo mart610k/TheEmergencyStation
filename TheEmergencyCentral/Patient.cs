@@ -15,11 +15,12 @@ namespace TheEmergencyCentral
 
         private IEmergencyCentral emergencyCentral;
 
-        public Thread myThread;
+        private Thread myThread;
 
         private bool priorityRequired;
 
-        private bool serviceReceived;
+        Random random;
+
 
         public void CallAlarmCentral()
         {
@@ -40,6 +41,9 @@ namespace TheEmergencyCentral
 
         public void Run()
         {
+            random = new Random();
+            Thread.Sleep(random.Next(1000, 8000));
+
             CallAlarmCentral();
         }
 

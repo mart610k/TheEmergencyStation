@@ -7,7 +7,7 @@ namespace TheEmergencyCentral
     public interface IPatient
     {
         /// <summary>
-        /// The time required to solve the issue with the patintient
+        /// The time required to solve the issue with the patient
         /// </summary>
         int TimeRequiredSeconds { get; }
 
@@ -30,7 +30,7 @@ namespace TheEmergencyCentral
         /// Calls the EmergencyCentral
         /// </summary>
         void CallAlarmCentral();
-
+        
         /// <summary>
         /// Sets the emergency Central the Patient will call
         /// </summary>
