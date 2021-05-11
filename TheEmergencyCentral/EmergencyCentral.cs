@@ -5,10 +5,27 @@ using System.Threading;
 
 namespace TheEmergencyCentral
 {
-    public class EmergencyCentral : IEmergencyCentral
+    public class EmergencyCentral : IEmergencyCentral, IEmployeeManagement
     {
 
-        Thread EmergencyCentralThread;
+        private Thread emergencyCentralThread;
+
+        private List<IPatient> patientsInQueue = new List<IPatient>();
+
+        private List<IPatient> priorityPatientsInQueue = new List<IPatient>();
+
+        private List<IPatient> patientsAwaitingCallFromEmployee = new List<IPatient>();
+
+        private List<IPatient> patientsAwaitingDoctor = new List<IPatient>();
+
+        private readonly object patientsInQueueLock = new object();
+
+        private readonly object priorityPatientsInQueueLock = new object();
+
+        private readonly object patientsAwaitingCallFromEmployeeLock = new object();
+
+        private readonly object patientsAwaitingDoctorLock = new object();
+
 
         public int AmountOfPatientsInQueue()
         {
@@ -21,29 +38,15 @@ namespace TheEmergencyCentral
             return priorityPatientsInQueue.Count;
         }
 
-        List<IPatient> patientsInQueue = new List<IPatient>();
-
-        List<IPatient> priorityPatientsInQueue = new List<IPatient>();
-
-        List<IPatient> patientsAwaitingCallFromEmployee = new List<IPatient>();
-
-        List<IPatient> patientsAwaitingDoctor = new List<IPatient>();
-
-        private readonly object patientsInQueueLock = new object();
-
-        private readonly object priorityPatientsInQueueLock = new object();
-
-        private readonly object patientsAwaitingCallFromEmployeeLock = new object();
-
-        private readonly object patientsAwaitingDoctorLock = new object();
-
+       
         public EmergencyCentral()
         {
-            EmergencyCentralThread = new Thread(() => Run());
+            emergencyCentralThread = new Thread(() => Run());
         }
         
         public bool ElevateCallToDoctor(IPatient patient)
         {
+            
             bool result = false;
             lock (patientsAwaitingDoctorLock)
             {
@@ -111,6 +114,46 @@ namespace TheEmergencyCentral
         public void Start() 
         {
             throw new NotImplementedException();
+        }
+
+        public IPatient GetHighestPrioityCall()
+        {
+            IPatient patient = null;
+            lock (priorityPatientsInQueueLock)
+            {
+                if (0 < priorityPatientsInQueue.Count)
+                {
+                    patient = priorityPatientsInQueue[0];
+                    priorityPatientsInQueue.RemoveAt(0);
+                }
+            }
+            if(patient == null)
+            {
+                lock (patientsInQueueLock)
+                {
+                    if(0 < patientsInQueue.Count)
+                    {
+                        patient = patientsInQueue[0];
+                        patientsInQueue.RemoveAt(0);
+                    }
+                }
+            }
+            return patient;
+        }
+
+        public IPatient GetDoctorCall()
+        {
+            IPatient patient = null;
+
+            lock (patientsAwaitingDoctorLock)
+            {
+                if(0 < patientsAwaitingDoctor.Count)
+                {
+                    patient = patientsAwaitingDoctor[0];
+                    patientsAwaitingDoctor.RemoveAt(0);
+                }
+            }
+            return patient;
         }
     }
 }

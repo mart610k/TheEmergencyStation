@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace TheEmergencyCentral
 {
@@ -12,9 +13,24 @@ namespace TheEmergencyCentral
 
         public bool AwaitingCall => throw new NotImplementedException();
 
+        private IEmergencyCentral emergencyCentral;
+
+        public Thread myThread;
+
+        private bool priorityRequired;
+
+        private bool serviceReceived;
+
         public void CallAlarmCentral()
         {
-            throw new NotImplementedException();
+            if (priorityRequired)
+            {
+                emergencyCentral.PriorityCall(this);
+            }
+            else
+            {
+                emergencyCentral.QueueNumber(this);
+            }
         }
 
         public void ReceiveCall()
@@ -22,10 +38,32 @@ namespace TheEmergencyCentral
             throw new NotImplementedException();
         }
 
-        public Patient(int timeRequired, int phoneNumber)
+        public void Run()
+        {
+            CallAlarmCentral();
+        }
+
+        public void Join()
+        {
+            myThread.Join();
+        }
+
+        public void Start()
+        {
+            myThread = new Thread(() => Run());
+            myThread.Start();
+        }
+
+        public void SetEmergencyCentral(IEmergencyCentral emergencyCentral)
+        {
+            this.emergencyCentral = emergencyCentral;
+        }
+
+        public Patient(int timeRequired, int phoneNumber, bool priorityRequired = false)
         {
             TimeRequiredSeconds = timeRequired;
             PhoneNumber = phoneNumber;
+            this.priorityRequired = priorityRequired;
         }
     }
 }

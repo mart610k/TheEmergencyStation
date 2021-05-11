@@ -30,5 +30,26 @@ namespace TheEmergencyCentral
         /// Calls the EmergencyCentral
         /// </summary>
         void CallAlarmCentral();
+
+        /// <summary>
+        /// Sets the emergency Central the Patient will call
+        /// </summary>
+        /// <param name="emergencyCentral"></param>
+        void SetEmergencyCentral(IEmergencyCentral emergencyCentral);
+
+        /// <summary>
+        /// Starts the patient acting on its own.
+        /// </summary>
+        public void Start();
+
+        /// <summary>
+        /// When the patient is acting on its own.
+        /// </summary>
+        public void Run();
+
+        /// <summary>
+        /// Joins the thread into the calling thread.
+        /// </summary>
+        public void Join();
     }
 }
